@@ -160,7 +160,7 @@ jobs:
           retention-days: 30
 
       - name: Deploy Web to GitHub Pages
-        if: matrix.target == 'web' && github.ref == 'refs/heads/main'
+        if: matrix.platform == 'web' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -171,7 +171,7 @@ jobs:
   build-native:
     name: Build Native Apps
     needs: [setup, analyze, security, test]
-    if: github.event_name == 'push' && github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v')
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
     strategy:
       matrix:
         include:
