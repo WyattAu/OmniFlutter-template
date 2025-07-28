@@ -13,10 +13,13 @@ concurrency:
 
 # temp solution of using literals due to https://github.com/actions/runner/issues/1189
 env:
-  FLUTTER_VERSION: "3.32.0"
+  FLUTTER_VERSION: "3.32.8"
   JAVA_VERSION: "17"
   OWASP_VERSION: "8.4.0"
   MIN_COVERAGE_THRESHOLD: 80
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
 
 jobs:
   # gather metadata and hash pubspec
@@ -53,7 +56,7 @@ jobs:
     needs: setup
     uses: ./.github/workflows/reusable-analyze.yml
     with:
-      flutter-version: "3.32.0"
+      flutter-version: "3.32.8"
       pubspec-hash: ${{ needs.setup.outputs.pubspec-hash }}
 
   # Security Scanning
@@ -82,7 +85,7 @@ jobs:
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: "3.32.0"
+          version: "3.32.8"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
@@ -125,7 +128,7 @@ jobs:
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: "3.32.0"
+          version: "3.32.8"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
@@ -196,7 +199,7 @@ jobs:
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: "3.32.0"
+          version: "3.32.8"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 

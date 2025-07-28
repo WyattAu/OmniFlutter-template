@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseManager {
@@ -5,15 +6,41 @@ class SupabaseManager {
   factory SupabaseManager() => _instance;
   SupabaseManager._internal();
 
+  bool _isInitialized = false;
   late final SupabaseClient client;
 
   Future<void> initialize() async {
-    // TODO: Replace with your actual Supabase credentials
-    await Supabase.initialize(
-      url: 'https://yclunwdxvgontmfezqdb.supabase.co',
-      anonKey:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InljbHVud2R4dmdvbnRtZmV6cWRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NDYzMDIsImV4cCI6MjA2OTIyMjMwMn0.U91REp1bScB4muCLVYew9I38fSwXaYWBm9n0WXA8cT4',
-    );
-    client = Supabase.instance.client;
+    if (_isInitialized) return;
+
+    await dotenv.load(fileName: '.env');
+    final supabaseUrl = dotenv.env['SUPABASE_URL'];
+    final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+
+    assert(supabaseUrl != null && supabaseAnonKey != null, 
+        'Supabase credentials not found in .env file');
+
+    try {
+      await Supabase.initialize(
+        url: supabaseUrl!,
+        anonKey: supabaseAnonKey!,
+      );
+      client = Supabase.instance.client;
+      _isInitialized = true;
+    } catch (e, st) {
+      throw SupabaseInitializationException(
+        'Failed to initialize Supabase: $e',
+        st,
+      );
+    }
   }
+}
+
+class SupabaseInitializationException implements Exception {
+  final String message;
+  final StackTrace stackTrace;
+  
+  SupabaseInitializationException(this.message, this.stackTrace);
+
+  @override
+  String toString() => 'SupabaseInitializationException: $message';
 }
