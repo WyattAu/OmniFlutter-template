@@ -13,7 +13,7 @@ concurrency:
 
 # temp solution of using literals due to https://github.com/actions/runner/issues/1189
 env:
-  FLUTTER_VERSION: "3.22.2"
+  FLUTTER_VERSION: "3.32.0"
   JAVA_VERSION: "17"
   OWASP_VERSION: "8.4.0"
   MIN_COVERAGE_THRESHOLD: 80
@@ -53,7 +53,7 @@ jobs:
     needs: setup
     uses: ./.github/workflows/reusable-analyze.yml
     with:
-      flutter-version: "3.22.2"
+      flutter-version: "3.32.0"
       pubspec-hash: ${{ needs.setup.outputs.pubspec-hash }}
 
   # Security Scanning
@@ -82,7 +82,7 @@ jobs:
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: "3.22.2"
+          version: "3.32.0"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
@@ -125,7 +125,7 @@ jobs:
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: "3.22.2"
+          version: "3.32.0"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
@@ -196,7 +196,7 @@ jobs:
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: "3.22.2"
+          version: "3.32.0"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
