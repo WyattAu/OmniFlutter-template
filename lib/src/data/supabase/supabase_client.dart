@@ -1,3 +1,4 @@
+import 'dart:io' show Platform; // for env variables
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,12 +13,19 @@ class SupabaseManager {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    await dotenv.load(fileName: '.env');
-    final supabaseUrl = dotenv.env['SUPABASE_URL'];
-    final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+    // Try to load from environment variables first (GitHub secrets)
+    String? supabaseUrl = Platform.environment['SUPABASE_URL'];
+    String? supabaseAnonKey = Platform.environment['SUPABASE_ANON_KEY'];
+
+    // Fallback to .env file if environment variables are not set
+    if (supabaseUrl == null || supabaseAnonKey == null) {
+      await dotenv.load(fileName: '.env');
+      supabaseUrl = dotenv.env['SUPABASE_URL'];
+      supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+    }
 
     assert(supabaseUrl != null && supabaseAnonKey != null, 
-        'Supabase credentials not found in .env file');
+        'Supabase credentials not found in environment variables or .env file');
 
     try {
       await Supabase.initialize(
