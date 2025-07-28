@@ -1,0 +1,554 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "flutter pub get",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["pub", "get"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter doctor",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["doctor"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter doctor verbose",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["doctor", "-v"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter devices",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["devices"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter emulators",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["emulators"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter analyze",
+      "type": "shell",
+      "command": "dart",
+      "args": ["analyze", "--fatal-infos"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": ["$dart-analyzer"]
+    },
+    {
+      "label": "flutter analyze quiet",
+      "type": "shell",
+      "command": "dart",
+      "args": ["analyze", "--fatal-infos", "--format", "machine"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": ["$dart-analyzer"]
+    },
+    {
+      "label": "flutter format",
+      "type": "shell",
+      "command": "dart",
+      "args": ["format", "."],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter format check",
+      "type": "shell",
+      "command": "dart",
+      "args": ["format", "--output=none", "--set-exit-if-changed", "."],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter fix",
+      "type": "shell",
+      "command": "dart",
+      "args": ["fix", "--apply"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "pubspec checker",
+      "type": "shell",
+      "command": "dart",
+      "args": ["run", "pubspec_checker", "-s", "-l"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "dependsOn": "flutter pub get"
+    },
+    {
+      "label": "flutter test",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["test", "--coverage"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter test unit",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["test"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter test integration",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["test", "integration_test"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "build runner build",
+      "type": "shell",
+      "command": "dart",
+      "args": ["run", "build_runner", "build", "--delete-conflicting-outputs"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "build runner watch",
+      "type": "shell",
+      "command": "dart",
+      "args": ["run", "build_runner", "watch", "--delete-conflicting-outputs"],
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "promptOnClose": true
+    },
+    {
+      "label": "build runner clean",
+      "type": "shell",
+      "command": "dart",
+      "args": ["run", "build_runner", "clean"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter clean",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["clean"],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter pub upgrade",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["pub", "upgrade"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter pub outdated",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["pub", "outdated"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter pub audit",
+      "type": "shell",
+      "command": "dart",
+      "args": ["pub", "audit"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter run",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["run"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter run web",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["run", "-d", "web"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter run chrome",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["run", "-d", "chrome"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter run ios",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["run", "-d", "ios"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter run android",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["run", "-d", "android"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter build apk",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["build", "apk", "--release"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter build appbundle",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["build", "appbundle", "--release"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter build ios",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["build", "ios", "--release"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter build web",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["build", "web", "--release"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter config",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["config"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter channel",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["channel"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter upgrade",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["upgrade"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter precache",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["precache"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "flutter cache repair",
+      "type": "shell",
+      "command": "flutter",
+      "args": ["pub", "cache", "repair"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "pub global list",
+      "type": "shell",
+      "command": "dart",
+      "args": ["pub", "global", "list"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "ci check",
+      "type": "shell",
+      "command": "make",
+      "args": ["ci-check"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "all checks",
+      "type": "shell",
+      "command": "make",
+      "args": ["all"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "setup project",
+      "type": "shell",
+      "command": "make",
+      "args": ["setup"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

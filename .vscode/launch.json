@@ -1,0 +1,164 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter Debug",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "toolArgs": []
+    },
+    {
+      "name": "Flutter Debug with Observatory",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "toolArgs": ["--enable-vm-service", "--pause_isolates_on_start"]
+    },
+    {
+      "name": "Flutter Profile",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [],
+      "flutterMode": "profile",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Release",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [],
+      "flutterMode": "release",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Test",
+      "request": "launch",
+      "type": "dart",
+      "program": "test/",
+      "cwd": "${workspaceFolder}",
+      "env": {},
+      "args": ["--coverage"]
+    },
+    {
+      "name": "Flutter Unit Test",
+      "request": "launch",
+      "type": "dart",
+      "program": "test/",
+      "args": ["--plain-name"],
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Integration Test",
+      "request": "launch",
+      "type": "dart",
+      "program": "integration_test/app_test.dart",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Web",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "web"],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Chrome",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "chrome", "--web-renderer", "html"],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Chrome (CanvasKit)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "chrome", "--web-renderer", "canvaskit"],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter iOS Simulator",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "ios"],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Android Emulator",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "android"],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Flutter Specific Device",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": ["-d", "${input:deviceId}"],
+      "flutterMode": "debug",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Dart Script",
+      "request": "launch",
+      "type": "dart",
+      "program": "${file}",
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    },
+    {
+      "name": "Dart Script with Args",
+      "request": "launch",
+      "type": "dart",
+      "program": "${file}",
+      "args": ["${input:args}"],
+      "cwd": "${workspaceFolder}",
+      "env": {}
+    }
+  ],
+  "inputs": [
+    {
+      "id": "deviceId",
+      "type": "promptString",
+      "description": "Enter device ID",
+      "default": "chrome"
+    },
+    {
+      "id": "args",
+      "type": "promptString",
+      "description": "Enter program arguments",
+      "default": ""
+    }
+  ]
+}

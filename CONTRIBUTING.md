@@ -3,6 +3,7 @@
 ## Setup
 
 1. Fork this repo
+2. run `make setup`
 
 ## Guidelines
 

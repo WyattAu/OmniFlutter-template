@@ -1,0 +1,59 @@
+name: Flutter Code Analysis
+on:
+  workflow_call:
+    inputs:
+      flutter-version:
+        required: true
+        type: string
+      pubspec-hash:
+        required: true
+        type: string
+
+jobs:
+  analyze:
+    name: Static Analysis & Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # https://github.com/flutter-actions/setup-flutter
+      - name: Setup Flutter
+        uses: flutter-actions/setup-flutter@v4
+        with:
+          version: ${{ inputs.flutter-version }}
+          cache: true
+          cache-key: flutter-analyze-${{ inputs.pubspec-hash }}
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Run Flutter Analyzer
+        run: |
+          flutter analyze \
+            --fatal-infos \
+            --fatal-warnings
+
+      - name: Check Code Formatting
+        run: |
+          flutter format \
+            --set-exit-if-changed \
+            --line-length=120 \
+            lib/ test/ || exit 0
+
+      - name: Generate Code Metrics
+        run: |
+          dart pub global activate dart_code_metrics_presets
+          dart pub global run dart_code_metrics_presets:metrics analyze lib \
+            --reporter=github \
+            --fatal-style-issues=true \
+            --fatal-performance-issues=true
+
+      - name: Validate Analysis Results
+        if: failure()
+        run: |
+          echo "::error::Code analysis failed. Please fix the issues."
+          exit 1

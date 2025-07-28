@@ -1,0 +1,75 @@
+name: Security Vulnerability Scan
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        required: true
+        type: string
+      owasp-version:
+        required: true
+        type: string
+
+jobs:
+  security:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ inputs.java-version }}
+          cache: 'gradle'
+
+      - name: Setup OWASP Dependency Check
+        run: |
+          mkdir -p ${{ runner.temp }}/owasp-cache
+          echo "OWASP_CACHE=${{ runner.temp }}/owasp-cache" >> $GITHUB_ENV
+
+      - name: Run OWASP Dependency Check
+        run: |
+          docker run --rm \
+            -v "$(pwd)":/src \
+            -v "${{ env.OWASP_CACHE }}":/usr/share/dependency-check/data \
+            owasp/dependency-check:${{ inputs.owasp-version }} \
+            --scan /src \
+            --project "${{ github.repository }}" \
+            --format HTML \
+            --format JSON \
+            --failOnCVSS 7 \
+            --enableExperimental \
+            --noupdate
+
+      - name: Upload Security Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            dependency-check-report.html
+            dependency-check-report.json
+          if-no-files-found: ignore
+          compression-level: 6
+          retention-days: 7
+
+      - name: Check for Critical Vulnerabilities
+        run: |
+          if [ -f "dependency-check-report.json" ]; then
+            CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.cvssScore >= 7)] | length' dependency-check-report.json)
+            if [ "$CRITICAL_VULNS" -gt 0 ]; then
+              echo "::error::Found $CRITICAL_VULNS critical vulnerabilities (CVSS >= 7)"
+              exit 1
+            fi
+          fi
+
+      - name: Clean Up
+        if: always()
+        run: |
+          rm -f dependency-check-report.*
