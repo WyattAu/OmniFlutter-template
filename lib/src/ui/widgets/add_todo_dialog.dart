@@ -9,10 +9,10 @@ class AddTodoDialog extends StatefulWidget {
   const AddTodoDialog({super.key, required this.todoBloc});
 
   @override
-  _AddTodoDialogState createState() => _AddTodoDialogState();
+  AddTodoDialogState createState() => AddTodoDialogState();
 }
 
-class _AddTodoDialogState extends State<AddTodoDialog> {
+class AddTodoDialogState extends State<AddTodoDialog> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
