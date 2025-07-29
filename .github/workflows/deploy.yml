@@ -6,6 +6,18 @@ on:
     tags: ["v*.*.*"]
   pull_request:
     branches: [main, dev]
+  workflow_dispatch:
+    inputs:
+      skip-security-scan:
+        description: 'Skip OWASP Security Scan?'
+        required: false
+        default: true
+        type: boolean
+      skip-tests:
+        description: 'Skip Unit Tests?'
+        required: false
+        default: true
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -74,6 +86,7 @@ jobs:
   security:
     name: Security Scan
     needs: setup
+    if: ${{ !inputs.skip-security-scan }}
     uses: ./.github/workflows/reusable-security.yml
     with:
       java-version: "17"
@@ -82,6 +95,7 @@ jobs:
   test:
     name: Unit Tests
     needs: setup
+    if: ${{ !inputs.skip-tests }}
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup.outputs.test-os) }}
@@ -262,11 +276,25 @@ jobs:
           echo "Build Web: ${{ needs.build-web.result }}"
           echo "Build Native: ${{ needs.build-native.result }}"
 
+          # Build jobs can be skipped, so we need to handle that
+          SECURITY_RESULT="${{ needs.security.result }}"
+          TEST_RESULT="${{ needs.test.result }}"
+          
+          # If security was skipped, treat as success
+          if [[ "${{ inputs.skip-security-scan }}" == "true" ]]; then
+            SECURITY_RESULT="success"
+          fi
+          
+          # If tests were skipped, treat as success
+          if [[ "${{ inputs.skip-tests }}" == "true" ]]; then
+            TEST_RESULT="success"
+          fi
+
           if [[ 
             "${{ needs.setup.result }}" == "success" &&
             "${{ needs.analyze.result }}" == "success" &&
-            "${{ needs.security.result }}" == "success" &&
-            "${{ needs.test.result }}" == "success" &&
+            "${SECURITY_RESULT}" == "success" &&
+            "${TEST_RESULT}" == "success" &&
             ("${{ needs.build-web.result }}" == "success" || "${{ needs.build-web.result }}" == "skipped") &&
             ("${{ needs.build-native.result }}" == "success" || "${{ needs.build-native.result }}" == "skipped")
           ]]; then
