@@ -11,12 +11,12 @@ on:
       skip-security-scan:
         description: 'Skip OWASP Security Scan?'
         required: false
-        default: true
+        default: false
         type: boolean
       skip-tests:
         description: 'Skip Unit Tests?'
         required: false
-        default: true
+        default: false
         type: boolean
 
 concurrency:
@@ -80,7 +80,7 @@ jobs:
     needs: setup
     uses: ./.github/workflows/reusable-analyze.yml
     with:
-      flutter-version: 3.32.8
+      flutter-version: "3.32.8"
       pubspec-hash: ${{ needs.setup.outputs.pubspec-hash }}
 
   security:
@@ -89,8 +89,8 @@ jobs:
     if: ${{ !inputs.skip-security-scan }}
     uses: ./.github/workflows/reusable-security.yml
     with:
-      java-version: 17
-      owasp-version: 8.4.0
+      java-version: "17"
+      owasp-version: "8.4.0"
 
   test:
     name: Unit Tests
@@ -108,7 +108,7 @@ jobs:
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: ${{ env.FLUTTER_VERSION }}
+          version: "3.32.8"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
@@ -137,7 +137,6 @@ jobs:
   build-web:
     name: Build Web Apps
     needs: [setup, analyze, security, test]
-    # Keep the dependency on security and test, but handle skips in quality gate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     strategy:
       matrix:
@@ -148,42 +147,47 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # https://github.com/flutter-actions/setup-flutter
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: ${{ env.FLUTTER_VERSION }}
+          version: "3.32.8"
           cache: true
-          cache-key: flutter-web-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
+          cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
       - name: Get Dependencies
         run: flutter pub get
 
-      - name: Enable Web Support
-        run: flutter config --enable-web
-
       - name: Build Application
         run: |
           flutter build web \
-            --release \
-            --web-renderer canvaskit \
-            --base-href="/${{ github.event.repository.name }}/"
+          --release \
+          --web-renderer canvaskit \
+          --wasm \
+          --dart2wasm-release-flags="--truncation-rules" \
+          --dart2js-optimization-level=4 \
+          --no-source-maps \
+          --base-href="/${{ github.event.repository.name }}/"
+
+        env:
+          FLUTTER_ROOT: ${{ env.FLUTTER_ROOT }}
+          PUB_CACHE: ${{ env.PUB_CACHE }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-build-${{ needs.setup.outputs.repo-slug }}-${{ github.sha }}-${{ matrix.os }}
+          name: ${{ matrix.platform }}-build-${{ needs.setup.outputs.repo-slug }}-${{ github.sha }}
           path: build/web/
           if-no-files-found: warn
           compression-level: 6
           retention-days: 30
 
       - name: Deploy Web to GitHub Pages
-        if: matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
+        if: matrix.platform == 'web' && github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
-          force_orphan: true
 
   # Native Builds - only on version tags
   build-native:
@@ -213,34 +217,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # https://github.com/flutter-actions/setup-flutter
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
-          version: ${{ env.FLUTTER_VERSION }}
+          version: "3.32.8"
           cache: true
-          cache-key: flutter-native-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
+          cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
 
       - name: Setup Build Dependencies
         if: matrix.platform == 'android'
         run: |
           echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager "ndk;25.1.8937393" --channel=3
 
-      - name: Enable Platform Support
-        if: matrix.platform == 'linux' || matrix.platform == 'windows' || matrix.platform == 'macos'
-        run: |
-          if [ "${{ matrix.platform }}" == "linux" ]; then
-            flutter config --enable-linux-desktop
-          elif [ "${{ matrix.platform }}" == "windows" ]; then
-            flutter config --enable-windows-desktop
-          elif [ "${{ matrix.platform }}" == "macos" ]; then
-            flutter config --enable-macos-desktop
-          fi
-
       - name: Get Dependencies
         run: flutter pub get
 
       - name: Build Application
         run: ${{ matrix.build-cmd }}
+        env:
+          FLUTTER_ROOT: ${{ env.FLUTTER_ROOT }}
+          PUB_CACHE: ${{ env.PUB_CACHE }}
 
       - name: Package Build Artifacts
         id: package
@@ -250,12 +247,6 @@ jobs:
             BUILD_DIR="build/app/outputs/flutter-apk/"
           elif [ "${{ matrix.platform }}" == "ios" ]; then
             BUILD_DIR="build/ios/iphoneos/"
-          elif [ "${{ matrix.platform }}" == "windows" ]; then
-            BUILD_DIR="build/windows/x64/runner/Release/"
-          elif [ "${{ matrix.platform }}" == "linux" ]; then
-            BUILD_DIR="build/linux/x64/release/bundle/"
-          elif [ "${{ matrix.platform }}" == "macos" ]; then
-            BUILD_DIR="build/macos/Build/Products/Release/"
           fi
           echo "build-dir=${BUILD_DIR}" >> $GITHUB_OUTPUT
 
