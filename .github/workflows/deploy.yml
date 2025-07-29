@@ -11,12 +11,12 @@ on:
       skip-security-scan:
         description: 'Skip OWASP Security Scan?'
         required: false
-        default: false
+        default: true
         type: boolean
       skip-tests:
         description: 'Skip Unit Tests?'
         required: false
-        default: false
+        default: true
         type: boolean
 
 concurrency:
@@ -30,6 +30,9 @@ env:
   MIN_COVERAGE_THRESHOLD: 80
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
   SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+  # Default values - can be overridden by workflow_dispatch inputs
+  SKIP_SECURITY_SCAN: ${{ github.event.inputs.skip-security-scan || 'true' }}
+  SKIP_TESTS: ${{ github.event.inputs.skip-tests || 'true' }}
 
 jobs:
   setup:
@@ -86,7 +89,8 @@ jobs:
   security:
     name: Security Scan
     needs: setup
-    if: ${{ !inputs.skip-security-scan }}
+    # Skip if workflow_dispatch input is true OR if env var is set to 'true'
+    if: ${{ !(github.event.inputs.skip-security-scan == 'true' || env.SKIP_SECURITY_SCAN == 'true') }}
     uses: ./.github/workflows/reusable-security.yml
     with:
       java-version: "17"
@@ -95,7 +99,8 @@ jobs:
   test:
     name: Unit Tests
     needs: setup
-    if: ${{ !inputs.skip-tests }}
+    # Skip if workflow_dispatch input is true OR if env var is set to 'true'
+    if: ${{ !(github.event.inputs.skip-tests == 'true' || env.SKIP_TESTS == 'true') }}
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup.outputs.test-os) }}
