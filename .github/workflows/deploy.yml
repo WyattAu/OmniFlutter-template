@@ -9,12 +9,12 @@ on:
   workflow_dispatch:
     inputs:
       skip-security-scan:
-        description: 'Skip OWASP Security Scan?'
+        description: "Skip OWASP Security Scan?"
         required: false
         default: true
         type: boolean
       skip-tests:
-        description: 'Skip Unit Tests?'
+        description: "Skip Unit Tests?"
         required: false
         default: true
         type: boolean
@@ -91,6 +91,7 @@ jobs:
     with:
       java-version: "17"
       owasp-version: "8.4.0"
+      skip-scan: ${{ github.event.inputs.skip-security-scan || false }}
 
   test:
     name: Unit Tests
@@ -104,24 +105,25 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
+    
       - name: Setup Flutter
         uses: flutter-actions/setup-flutter@v4
         with:
           version: "3.32.8"
           cache: true
           cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
-
+        
       - name: Get Dependencies
         run: flutter pub get
-
+        
       - name: Run Tests with Coverage
+        if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-tests }}
         run: |
           flutter test \
             --coverage \
             --test-randomize-ordering-seed=random \
             --concurrency=4
-
+        
       - name: Upload Coverage Reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -279,12 +281,12 @@ jobs:
           # Build jobs can be skipped, so we need to handle that
           SECURITY_RESULT="${{ needs.security.result }}"
           TEST_RESULT="${{ needs.test.result }}"
-          
+
           # If security was skipped, treat as success
           if [[ "${{ github.event.inputs.skip-security-scan }}" == "true" ]]; then
             SECURITY_RESULT="success"
           fi
-          
+
           # If tests were skipped, treat as success
           if [[ "${{ github.event.inputs.skip-tests }}" == "true" ]]; then
             TEST_RESULT="success"

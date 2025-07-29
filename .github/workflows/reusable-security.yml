@@ -8,6 +8,10 @@ on:
       owasp-version:
         required: true
         type: string
+      skip-scan:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   security:
@@ -17,11 +21,13 @@ jobs:
     
     steps:
       - name: Checkout Repository
+        if: ${{ !inputs.skip-scan }}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Java
+        if: ${{ !inputs.skip-scan }}
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -29,11 +35,13 @@ jobs:
           cache: 'gradle'
 
       - name: Setup OWASP Dependency Check
+        if: ${{ !inputs.skip-scan }}
         run: |
           mkdir -p ${{ runner.temp }}/owasp-cache
           echo "OWASP_CACHE=${{ runner.temp }}/owasp-cache" >> $GITHUB_ENV
 
       - name: Run OWASP Dependency Check
+        if: ${{ !inputs.skip-scan }}
         run: |
           docker run --rm \
             -v "$(pwd)":/src \
@@ -48,7 +56,7 @@ jobs:
             --noupdate
 
       - name: Upload Security Reports
-        if: always()
+        if: ${{ !inputs.skip-scan && always() }}
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
@@ -60,6 +68,7 @@ jobs:
           retention-days: 7
 
       - name: Check for Critical Vulnerabilities
+        if: ${{ !inputs.skip-scan }}
         run: |
           if [ -f "dependency-check-report.json" ]; then
             CRITICAL_VULNS=$(jq '[.dependencies[].vulnerabilities[] | select(.cvssScore >= 7)] | length' dependency-check-report.json)
@@ -70,6 +79,6 @@ jobs:
           fi
 
       - name: Clean Up
-        if: always()
+        if: ${{ !inputs.skip-scan && always() }}
         run: |
           rm -f dependency-check-report.*
