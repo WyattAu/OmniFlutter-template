@@ -1,8 +1,7 @@
 name: omniflutter_template
 description: "A flutter starter template"
 
-publish_to: 'none' 
-
+publish_to: "none"
 
 version: 0.0.1
 
@@ -42,38 +41,36 @@ dev_dependencies:
   build_runner: ^2.4.11
   json_serializable: ^6.7.1
   pubspec_checker: ^1.0.9
-  
-
 
 flutter:
   uses-material-design: true
   generate: true
 
   assets:
-  - assets/fonts/Inter/
-  - assets/fonts/Poppins/
-  - .env
+    - assets/fonts/Inter/
+    - assets/fonts/Poppins/
+
   fonts:
-  - family: Inter
-    fonts:
-      - asset: assets/fonts/Inter/Inter-Regular.ttf
-        weight: 400
-      - asset: assets/fonts/Inter/Inter-Medium.ttf
-        weight: 500
-      - asset: assets/fonts/Inter/Inter-SemiBold.ttf
-        weight: 600
-      - asset: assets/fonts/Inter/Inter-Bold.ttf
-        weight: 700
-  - family: Poppins
-    fonts:
-      - asset: assets/fonts/Poppins/Poppins-Regular.ttf
-        weight: 400
-      - asset: assets/fonts/Poppins/Poppins-Medium.ttf
-        weight: 500
-      - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
-        weight: 600
-      - asset: assets/fonts/Poppins/Poppins-Bold.ttf
-        weight: 700
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter/Inter-Bold.ttf
+          weight: 700
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Poppins/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
 
 flutter_gen:
   output: lib/src/gen/
