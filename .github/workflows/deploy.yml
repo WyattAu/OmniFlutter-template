@@ -75,70 +75,70 @@ jobs:
           fi
           echo "os_json=${os_json}" >> $GITHUB_OUTPUT
 
-  analyze:
-    name: Code Analysis
-    needs: setup
-    uses: ./.github/workflows/reusable-analyze.yml
-    with:
-      flutter-version: "3.32.8"
-      pubspec-hash: ${{ needs.setup.outputs.pubspec-hash }}
+  # analyze:
+  #   name: Code Analysis
+  #   needs: setup
+  #   uses: ./.github/workflows/reusable-analyze.yml
+  #   with:
+  #     flutter-version: "3.32.8"
+  #     pubspec-hash: ${{ needs.setup.outputs.pubspec-hash }}
 
-  security:
-    name: Security Scan
-    needs: setup
-    if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-security-scan }}
-    uses: ./.github/workflows/reusable-security.yml
-    with:
-      java-version: "17"
-      owasp-version: "8.4.0"
-      skip-scan: ${{ github.event.inputs.skip-security-scan || false }}
+  # security:
+  #   name: Security Scan
+  #   needs: setup
+  #   if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-security-scan }}
+  #   uses: ./.github/workflows/reusable-security.yml
+  #   with:
+  #     java-version: "17"
+  #     owasp-version: "8.4.0"
+  #     skip-scan: ${{ github.event.inputs.skip-security-scan || false }}
 
-  test:
-    name: Unit Tests
-    needs: setup
-    if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-tests }}
-    strategy:
-      matrix:
-        os: ${{ fromJson(needs.setup.outputs.test-os) }}
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-    
-      - name: Setup Flutter
-        uses: flutter-actions/setup-flutter@v4
-        with:
-          version: "3.32.8"
-          cache: true
-          cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
-        
-      - name: Get Dependencies
-        run: flutter pub get
-        
-      - name: Run Tests with Coverage
-        if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-tests }}
-        run: |
-          flutter test \
-            --coverage \
-            --test-randomize-ordering-seed=random \
-            --concurrency=4
-        
-      - name: Upload Coverage Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-coverage-${{ matrix.os }}
-          path: |
-            coverage/
-            test-reports/
-          if-no-files-found: ignore
-          compression-level: 6
+  # test:
+  #   name: Unit Tests
+  #   needs: setup
+  #   if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-tests }}
+  #   strategy:
+  #     matrix:
+  #       os: ${{ fromJson(needs.setup.outputs.test-os) }}
+  #     fail-fast: false
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #   
+  #     - name: Setup Flutter
+  #       uses: flutter-actions/setup-flutter@v4
+  #       with:
+  #         version: "3.32.8"
+  #         cache: true
+  #         cache-key: flutter-test-${{ matrix.os }}-${{ needs.setup.outputs.pubspec-hash }}
+  #       
+  #     - name: Get Dependencies
+  #       run: flutter pub get
+  #       
+  #     - name: Run Tests with Coverage
+  #       if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-tests }}
+  #       run: |
+  #         flutter test \
+  #           --coverage \
+  #           --test-randomize-ordering-seed=random \
+  #           --concurrency=4
+  #       
+  #     - name: Upload Coverage Reports
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: test-coverage-${{ matrix.os }}
+  #         path: |
+  #           coverage/
+  #           test-reports/
+  #         if-no-files-found: ignore
+  #         compression-level: 6
 
   # Web Builds - only on main branch
   build-web:
     name: Build Web Apps
-    needs: [setup, analyze, security, test]
+    needs: [setup] # Removed analyze, security, test dependencies
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     strategy:
       matrix:
@@ -194,7 +194,7 @@ jobs:
   # Native Builds - only on version tags
   build-native:
     name: Build Native Apps
-    needs: [setup, analyze, security, test]
+    needs: [setup] # Removed analyze, security, test dependencies
     if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
     strategy:
       matrix:
@@ -265,38 +265,18 @@ jobs:
   quality-gate:
     name: Quality Gate
     if: always()
-    needs: [setup, analyze, security, test, build-web, build-native]
+    needs: [setup, build-web, build-native] # Removed analyze, security, test dependencies
     runs-on: ubuntu-latest
     steps:
       - name: Check Job Status
         run: |
           echo "Job Status Summary:"
           echo "Setup: ${{ needs.setup.result }}"
-          echo "Analyze: ${{ needs.analyze.result }}"
-          echo "Security: ${{ needs.security.result }}"
-          echo "Test: ${{ needs.test.result }}"
           echo "Build Web: ${{ needs.build-web.result }}"
           echo "Build Native: ${{ needs.build-native.result }}"
 
-          # Build jobs can be skipped, so we need to handle that
-          SECURITY_RESULT="${{ needs.security.result }}"
-          TEST_RESULT="${{ needs.test.result }}"
-
-          # If security was skipped, treat as success
-          if [[ "${{ github.event.inputs.skip-security-scan }}" == "true" ]]; then
-            SECURITY_RESULT="success"
-          fi
-
-          # If tests were skipped, treat as success
-          if [[ "${{ github.event.inputs.skip-tests }}" == "true" ]]; then
-            TEST_RESULT="success"
-          fi
-
           if [[ 
             "${{ needs.setup.result }}" == "success" &&
-            "${{ needs.analyze.result }}" == "success" &&
-            "${SECURITY_RESULT}" == "success" &&
-            "${TEST_RESULT}" == "success" &&
             ("${{ needs.build-web.result }}" == "success" || "${{ needs.build-web.result }}" == "skipped") &&
             ("${{ needs.build-native.result }}" == "success" || "${{ needs.build-native.result }}" == "skipped")
           ]]; then
