@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../models/todo.dart';
+import '../../domain/entities/todo.dart';
 
 abstract class TodoEvent extends Equatable {
   const TodoEvent();
@@ -42,3 +42,5 @@ class ToggleTodoCompletion extends TodoEvent {
   @override
   List<Object?> get props => [todoId, isCompleted];
 }
+
+class SyncTodos extends TodoEvent {}

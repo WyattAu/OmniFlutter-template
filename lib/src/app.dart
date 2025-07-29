@@ -8,12 +8,14 @@ import 'bloc/todo/todo_event.dart';
 import 'data/database/database.dart';
 import 'data/database/todo_dao.dart';
 import 'data/supabase/supabase_service.dart';
+import 'domain/repositories/todo_repository_interface.dart'; // Add this import
 
 class TodoApp extends StatefulWidget {
   final SupabaseManagerInterface? supabaseManager;
   final DatabaseFactory? databaseFactory;
   final TodoDaoFactory? todoDaoFactory;
   final SupabaseServiceFactory? supabaseServiceFactory;
+  final TodoRepositoryFactory? todoRepositoryFactory; // Add this
   final TodoBlocFactory? todoBlocFactory;
   final String userId;
 
@@ -23,6 +25,7 @@ class TodoApp extends StatefulWidget {
     this.databaseFactory,
     this.todoDaoFactory,
     this.supabaseServiceFactory,
+    this.todoRepositoryFactory, // Add this
     this.todoBlocFactory,
     this.userId = 'user-id-placeholder',
   });
@@ -36,11 +39,13 @@ class _TodoAppState extends State<TodoApp> {
   late final DatabaseFactory _databaseFactory;
   late final TodoDaoFactory _todoDaoFactory;
   late final SupabaseServiceFactory _supabaseServiceFactory;
+  late final TodoRepositoryFactory _todoRepositoryFactory; // Add this
   late final TodoBlocFactory _todoBlocFactory;
 
   AppDatabase? _database;
   TodoDao? _todoDao;
   SupabaseService? _supabaseService;
+  TodoRepositoryInterface? _todoRepository; // Change type
   TodoBloc? _todoBloc;
 
   bool _isInitialized = false;
@@ -56,6 +61,8 @@ class _TodoAppState extends State<TodoApp> {
     _todoDaoFactory = widget.todoDaoFactory ?? ProductionTodoDaoFactory();
     _supabaseServiceFactory =
         widget.supabaseServiceFactory ?? ProductionSupabaseServiceFactory();
+    _todoRepositoryFactory =
+        widget.todoRepositoryFactory ?? ProductionTodoRepositoryFactory(); // Add this
     _todoBlocFactory = widget.todoBlocFactory ?? ProductionTodoBlocFactory();
 
     _initializeDependencies();
@@ -63,22 +70,48 @@ class _TodoAppState extends State<TodoApp> {
 
   Future<void> _initializeDependencies() async {
     try {
-      // Initialize Supabase
-      await _supabaseManager.initialize();
+      debugPrint('Starting application initialization...');
+      
+      // Initialize Supabase (non-fatal if fails)
+      debugPrint('Initializing Supabase...');
+      try {
+        await _supabaseManager.initialize();
+        debugPrint('Supabase initialization completed (success or skipped)');
+      } catch (e, stackTrace) {
+        debugPrint('Supabase initialization failed (continuing anyway): $e');
+        debugPrint('Stack trace: $stackTrace');
+      }
 
-      // Initialize local database
+      // Initialize local database 
+      debugPrint('Creating database...');
       _database = _databaseFactory.createDatabase();
+      debugPrint('Database created, testing connection...');
+      
+      // Test database connection
+      await _database!.testConnection();
+      debugPrint('Database connection successful');
+      
       _todoDao = _todoDaoFactory.createDao(_database!);
+      debugPrint('DAO created successfully');
 
       // Initialize services
+      debugPrint('Creating Supabase service...');
       _supabaseService = _supabaseServiceFactory.createService();
+      debugPrint('Supabase service created successfully');
 
-      // Initialize BLoC with dependencies
-      _todoBloc = _todoBlocFactory.createBloc(
+      // Initialize repository
+      debugPrint('Creating Todo repository...');
+      _todoRepository = _todoRepositoryFactory.createRepository(
         localDao: _todoDao!,
         remoteService: _supabaseService!,
         userId: widget.userId,
       );
+      debugPrint('Todo repository created successfully');
+
+      // Initialize BLoC with dependencies
+      debugPrint('Creating TodoBloc...');
+      _todoBloc = _todoBlocFactory.createBloc(_todoRepository!); // Updated
+      debugPrint('TodoBloc created successfully');
 
       if (mounted) {
         setState(() {
@@ -86,19 +119,20 @@ class _TodoAppState extends State<TodoApp> {
         });
 
         // Load initial data
+        debugPrint('Loading initial data...');
         _todoBloc!.add(LoadTodos());
       }
     } catch (e, stackTrace) {
       // Handle initialization error
+      debugPrint('Initialization error: $e');
+      debugPrint('Stack trace: $stackTrace');
+      
       if (mounted) {
         setState(() {
           _initializationError = e.toString();
           _isInitialized = true; // Still set to true to show error state
         });
       }
-
-      // Log the error with stack trace
-      debugPrint('Initialization error: $e\nStack trace: $stackTrace');
     }
   }
 
@@ -122,6 +156,11 @@ class _TodoAppState extends State<TodoApp> {
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
                 Text('Initializing...'),
+                SizedBox(height: 8),
+                Text(
+                  'This may take a moment',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
               ],
             ),
           ),
@@ -162,6 +201,14 @@ class _TodoAppState extends State<TodoApp> {
                     },
                     child: const Text('Retry'),
                   ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('User requested to see full error details');
+                      // Show full error in a dialog or copy to clipboard
+                    },
+                    child: const Text('View Details'),
+                  ),
                 ],
               ),
             ),
@@ -171,10 +218,30 @@ class _TodoAppState extends State<TodoApp> {
     }
 
     if (_todoBloc == null) {
-      return const MaterialApp(
+      return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          body: Center(child: Text('Failed to initialize application')),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                const SizedBox(height: 16),
+                const Text('Failed to initialize application'),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _isInitialized = false;
+                      _initializationError = null;
+                    });
+                    _initializeDependencies();
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }

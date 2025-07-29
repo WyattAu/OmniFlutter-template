@@ -4,6 +4,7 @@ import '../widgets/todo_tile.dart';
 import '../widgets/add_todo_dialog.dart';
 import '../../bloc/todo/todo_bloc.dart';
 import '../../bloc/todo/todo_state.dart';
+import '../../bloc/todo/todo_event.dart';
 
 class TodoScreen extends StatelessWidget {
   @override
@@ -18,7 +19,18 @@ class TodoScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text('My Todos (${state.filteredTodos.length})'),
-              actions: [_buildFilterMenu(context, state.filter)],
+              actions: [
+                _buildFilterMenu(context, state.filter),
+                if (state.isSyncing)
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+              ],
             ),
             body: state.filteredTodos.isEmpty
                 ? _buildEmptyState()
@@ -35,7 +47,24 @@ class TodoScreen extends StatelessWidget {
             ),
           );
         } else if (state is TodoError) {
-          return Scaffold(body: Center(child: Text('Error: ${state.message}')));
+          return Scaffold(
+            appBar: AppBar(title: const Text('My Todos')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${state.message}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<TodoBloc>().add(LoadTodos());
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          );
         }
         return Container();
       },
@@ -67,7 +96,8 @@ class TodoScreen extends StatelessWidget {
     return PopupMenuButton<Filter>(
       icon: const Icon(Icons.filter_list),
       onSelected: (filter) {
-        // Handle filter change - in a real app, you'd update the filter in BLoC
+        // In a real app, you'd update the filter in BLoC
+        // For now, we can add this functionality later
       },
       itemBuilder: (context) => [
         const PopupMenuItem(value: Filter.all, child: Text('All')),

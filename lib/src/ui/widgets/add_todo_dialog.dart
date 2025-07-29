@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../bloc/todo/todo_bloc.dart';
 import '../../bloc/todo/todo_event.dart';
-import '../../models/todo.dart' as model;
+import '../../domain/entities/todo.dart'; // Changed this import
 
 class AddTodoDialog extends StatefulWidget {
   final TodoBloc todoBloc; // Add this parameter
@@ -67,7 +67,7 @@ class AddTodoDialogState extends State<AddTodoDialog> {
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               // Use the passed bloc directly
-              final newTodo = model.Todo(
+              final newTodo = Todo( // Changed from model.Todo to Todo
                 id: '',
                 title: _titleController.text,
                 description: _descriptionController.text.isEmpty

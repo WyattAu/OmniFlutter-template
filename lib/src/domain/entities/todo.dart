@@ -1,26 +1,13 @@
+// domain/entities/todo.dart
 import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
-import 'package:drift/drift.dart'; // Fixed: Import for Value class
-import '../data/database/database.dart'; // Import for companion conversion
-import 'todo_interface.dart';
 
-part 'todo.g.dart';
-
-@JsonSerializable()
-class Todo extends Equatable implements TodoInterface {
-  @override
+class Todo extends Equatable {
   final String id;
-  @override
   final String title;
-  @override
   final String? description;
-  @override
   final bool isCompleted;
-  @override
   final DateTime createdAt;
-  @override
   final DateTime updatedAt;
-  @override
   final String? userId;
 
   const Todo({
@@ -32,15 +19,6 @@ class Todo extends Equatable implements TodoInterface {
     required this.updatedAt,
     this.userId,
   });
-
-  factory Todo.fromJson(Map<String, dynamic> json) => _$TodoFromJson(json);
-  
-  @override
-  Map<String, dynamic> toJson() => _$TodoToJson(this);
-  
-  @override
-  Map<String, dynamic> toMap() => toJson();
-
 
   Todo copyWith({
     String? id,
@@ -64,17 +42,5 @@ class Todo extends Equatable implements TodoInterface {
 
   @override
   List<Object?> get props => [id, title, isCompleted, createdAt, updatedAt];
-
-  // Add this method to convert to Drift companion
-  TodosTableCompanion toCompanion() {
-    return TodosTableCompanion(
-      id: Value(id), // Now Value is available
-      title: Value(title),
-      description: Value(description),
-      isCompleted: Value(isCompleted),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      userId: Value(userId),
-    );
-  }
 }
+

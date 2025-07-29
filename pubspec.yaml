@@ -47,6 +47,9 @@ flutter:
   generate: true
 
   assets:
+    - .env
+    - web/sqlite3.wasm
+    - web/drift_worker.js
     - assets/fonts/Inter/
     - assets/fonts/Poppins/
 

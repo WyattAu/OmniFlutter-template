@@ -1,9 +1,11 @@
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
+import 'database_impl.dart'
+    if (dart.library.io) 'database_impl_io.dart'
+    if (dart.library.html) 'database_impl_web.dart'
+    as impl;
+
 import '../../models/todo.dart' as model;
+import 'package:flutter/foundation.dart';
 
 part 'database.g.dart';
 
@@ -21,57 +23,158 @@ class TodosTable extends Table {
 }
 
 @DriftDatabase(tables: [TodosTable])
-class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+abstract class AppDatabase extends _$AppDatabase {
+  AppDatabase() : super(impl.executor) {
+    debugPrint('AppDatabase constructor called');
+  }
 
   @override
   int get schemaVersion => 1;
 
-  static QueryExecutor _openConnection() {
-    return LazyDatabase(() async {
-      // Get the documents directory path
-      final dbFolder = await getApplicationDocumentsDirectory();
-      final file = File(p.join(dbFolder.path, 'db.sqlite'));
-      return NativeDatabase(file);
-    });
+  // Migration strategy
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    beforeOpen: (details) async {
+      debugPrint('Before opening database');
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
+    onCreate: (Migrator m) {
+      debugPrint('Creating database tables');
+      return m.createAll();
+    },
+    onUpgrade: (m, from, to) async {
+      debugPrint('Upgrading database from $from to $to');
+      // Handle migrations here if needed
+    },
+  );
+
+  // Test connection method
+  Future<void> testConnection() async {
+    debugPrint('Testing database connection...');
+    try {
+      final result = await customSelect('SELECT 1 as result').get();
+      debugPrint(
+        'Database connection test successful: ${result.first.data['result']}',
+      );
+    } catch (e, stackTrace) {
+      debugPrint('Database connection test failed: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
+  // Modern Drift queries with automatic mapping
   Future<List<model.Todo>> getAllTodos() async {
-    final result = await customSelect('SELECT * FROM todos_table').get();
-    return result.map((row) => _rowToTodo(row)).toList();
+    debugPrint('Getting all todos...');
+    try {
+      final todos = await select(todosTable).get();
+      debugPrint('Retrieved ${todos.length} todos');
+      return todos.map((todo) => _toModel(todo)).toList();
+    } catch (e, stackTrace) {
+      debugPrint('Error getting todos: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   Stream<List<model.Todo>> watchAllTodos() {
-    return customSelect(
-      'SELECT * FROM todos_table',
-    ).watch().map((rows) => rows.map((row) => _rowToTodo(row)).toList());
+    debugPrint('Watching all todos...');
+    return select(
+      todosTable,
+    ).watch().map((todos) => todos.map((todo) => _toModel(todo)).toList());
   }
 
   Future<model.Todo?> getTodoById(String id) async {
-    final result = await customSelect(
-      'SELECT * FROM todos_table WHERE id = ?',
-      variables: [Variable.withString(id)],
-    ).getSingleOrNull();
-
-    return result != null ? _rowToTodo(result) : null;
+    debugPrint('Getting todo by id: $id');
+    try {
+      final todo = await (select(
+        todosTable,
+      )..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+      debugPrint('Todo found: ${todo != null}');
+      return todo != null ? _toModel(todo) : null;
+    } catch (e, stackTrace) {
+      debugPrint('Error getting todo by id: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
-  Future<int> insertTodo(TodosTableCompanion entry) =>
-      into(todosTable).insert(entry);
-  Future<bool> updateTodo(TodosTableCompanion entry) =>
-      update(todosTable).replace(entry);
-  Future<int> deleteTodo(String id) =>
-      (delete(todosTable)..where((t) => t.id.equals(id))).go();
+  Future<int> insertTodo(TodosTableCompanion entry) async {
+    debugPrint('Inserting todo...');
+    try {
+      final result = await into(todosTable).insert(entry);
+      debugPrint('Todo inserted with id: $result');
+      return result;
+    } catch (e, stackTrace) {
+      debugPrint('Error inserting todo: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
 
-  model.Todo _rowToTodo(QueryRow row) {
+  Future<bool> updateTodo(TodosTableCompanion entry) async {
+    debugPrint('Updating todo...');
+    try {
+      final result = await update(todosTable).replace(entry);
+      debugPrint('Todo updated: $result');
+      return result;
+    } catch (e, stackTrace) {
+      debugPrint('Error updating todo: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  Future<int> deleteTodo(String id) async {
+    debugPrint('Deleting todo with id: $id');
+    try {
+      final result = await (delete(
+        todosTable,
+      )..where((tbl) => tbl.id.equals(id))).go();
+      debugPrint('Todos deleted: $result');
+      return result;
+    } catch (e, stackTrace) {
+      debugPrint('Error deleting todo: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+  }
+
+  // Helper method to insert your model directly
+  Future<int> insertTodoModel(model.Todo todo) async {
+    debugPrint('Inserting todo model...');
+    return await insertTodo(_toCompanion(todo));
+  }
+
+  // Helper method to update your model directly
+  Future<bool> updateTodoModel(model.Todo todo) async {
+    debugPrint('Updating todo model...');
+    return await updateTodo(_toCompanion(todo));
+  }
+
+  // Private helper to convert Drift data to your model
+  model.Todo _toModel(TodosTableData todo) {
     return model.Todo(
-      id: row.read<String>('id'),
-      title: row.read<String>('title'),
-      description: row.read<String?>('description'),
-      isCompleted: row.read<bool>('is_completed'),
-      createdAt: row.read<DateTime>('created_at'),
-      updatedAt: row.read<DateTime>('updated_at'),
-      userId: row.read<String?>('user_id'),
+      id: todo.id,
+      title: todo.title,
+      description: todo.description,
+      isCompleted: todo.isCompleted,
+      createdAt: todo.createdAt,
+      updatedAt: todo.updatedAt,
+      userId: todo.userId,
+    );
+  }
+
+  // Private helper to convert your model to Drift companion
+  TodosTableCompanion _toCompanion(model.Todo todo) {
+    return TodosTableCompanion(
+      id: Value(todo.id),
+      title: Value(todo.title),
+      description: Value(todo.description),
+      isCompleted: Value(todo.isCompleted),
+      createdAt: Value(todo.createdAt),
+      updatedAt: Value(todo.updatedAt),
+      userId: Value(todo.userId),
     );
   }
 }
