@@ -6,6 +6,13 @@ on:
     tags: ["v*.*.*"]
   pull_request:
     branches: [main, dev]
+  workflow_dispatch:
+    inputs:
+      skip-security-scan:
+        description: 'Skip OWASP Security Scan?'
+        required: false
+        default: true
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -74,6 +81,7 @@ jobs:
   security:
     name: Security Scan
     needs: setup
+    if: ${{ !inputs.skip-security-scan }}
     uses: ./.github/workflows/reusable-security.yml
     with:
       java-version: "17"
