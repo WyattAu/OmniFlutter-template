@@ -10,6 +10,9 @@ class SupabaseManager {
   bool _isInitialized = false;
   late final SupabaseClient client;
 
+  // Expose the isInitialized property
+  bool get isInitialized => _isInitialized;
+
   Future<void> initialize() async {
     if (_isInitialized) return;
 
@@ -24,14 +27,13 @@ class SupabaseManager {
       supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
     }
 
-    assert(supabaseUrl != null && supabaseAnonKey != null, 
-        'Supabase credentials not found in environment variables or .env file');
+    assert(
+      supabaseUrl != null && supabaseAnonKey != null,
+      'Supabase credentials not found in environment variables or .env file',
+    );
 
     try {
-      await Supabase.initialize(
-        url: supabaseUrl!,
-        anonKey: supabaseAnonKey!,
-      );
+      await Supabase.initialize(url: supabaseUrl!, anonKey: supabaseAnonKey!);
       client = Supabase.instance.client;
       _isInitialized = true;
     } catch (e, st) {
@@ -46,7 +48,7 @@ class SupabaseManager {
 class SupabaseInitializationException implements Exception {
   final String message;
   final StackTrace stackTrace;
-  
+
   SupabaseInitializationException(this.message, this.stackTrace);
 
   @override

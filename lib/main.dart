@@ -13,8 +13,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Omni Todo',
-      theme: theme.appTheme,
-      home: TodoApp(),
+      theme: theme.AppTheme.lightTheme,
+      darkTheme: theme.AppTheme.darkTheme,
+      home: const TodoApp(),
       debugShowCheckedModeBanner: false,
     );
   }
