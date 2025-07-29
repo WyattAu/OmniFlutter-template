@@ -30,9 +30,6 @@ env:
   MIN_COVERAGE_THRESHOLD: 80
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
   SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-  # Default values - can be overridden by workflow_dispatch inputs
-  SKIP_SECURITY_SCAN: ${{ github.event.inputs.skip-security-scan || 'true' }}
-  SKIP_TESTS: ${{ github.event.inputs.skip-tests || 'true' }}
 
 jobs:
   setup:
@@ -89,8 +86,7 @@ jobs:
   security:
     name: Security Scan
     needs: setup
-    # Skip if workflow_dispatch input is true OR if env var is set to 'true'
-    if: ${{ !(github.event.inputs.skip-security-scan == 'true' || env.SKIP_SECURITY_SCAN == 'true') }}
+    if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-security-scan }}
     uses: ./.github/workflows/reusable-security.yml
     with:
       java-version: "17"
@@ -99,8 +95,7 @@ jobs:
   test:
     name: Unit Tests
     needs: setup
-    # Skip if workflow_dispatch input is true OR if env var is set to 'true'
-    if: ${{ !(github.event.inputs.skip-tests == 'true' || env.SKIP_TESTS == 'true') }}
+    if: ${{ github.event_name != 'workflow_dispatch' || !github.event.inputs.skip-tests }}
     strategy:
       matrix:
         os: ${{ fromJson(needs.setup.outputs.test-os) }}
@@ -286,12 +281,12 @@ jobs:
           TEST_RESULT="${{ needs.test.result }}"
           
           # If security was skipped, treat as success
-          if [[ "${{ inputs.skip-security-scan }}" == "true" ]]; then
+          if [[ "${{ github.event.inputs.skip-security-scan }}" == "true" ]]; then
             SECURITY_RESULT="success"
           fi
           
           # If tests were skipped, treat as success
-          if [[ "${{ inputs.skip-tests }}" == "true" ]]; then
+          if [[ "${{ github.event.inputs.skip-tests }}" == "true" ]]; then
             TEST_RESULT="success"
           fi
 
