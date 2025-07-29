@@ -6,7 +6,7 @@ class AppTypography {
   static const String fontInter = 'Inter';
   static const String fontPoppins = 'Poppins';
 
-  // Display Text - Poppins for creative, artistic expression
+  // Display Text
   static const TextStyle displayLarge = TextStyle(
     fontFamily: fontPoppins,
     fontSize: 57,
@@ -34,7 +34,7 @@ class AppTypography {
     height: 1.1,
   );
 
-  // Headline Text - Poppins for hierarchy and emphasis
+  // Headline Text
   static const TextStyle headlineLarge = TextStyle(
     fontFamily: fontPoppins,
     fontSize: 32,
@@ -62,7 +62,7 @@ class AppTypography {
     height: 1.2,
   );
 
-  // Title Text - Inter for clear communication
+  // Title Text
   static const TextStyle titleLarge = TextStyle(
     fontFamily: fontInter,
     fontSize: 22,
@@ -90,7 +90,7 @@ class AppTypography {
     height: 1.4,
   );
 
-  // Body Text - Inter for readability and professional tone
+  // Body Text
   static const TextStyle bodyLarge = TextStyle(
     fontFamily: fontInter,
     fontSize: 16,
@@ -118,7 +118,7 @@ class AppTypography {
     height: 1.33,
   );
 
-  // Label Text - Inter for UI elements
+  // Label Text
   static const TextStyle labelLarge = TextStyle(
     fontFamily: fontInter,
     fontSize: 14,
