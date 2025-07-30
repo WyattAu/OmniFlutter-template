@@ -167,19 +167,26 @@ jobs:
 
       - name: Build Application
         run: |
-          if [ "${{ secrets.CUSTOM_DOMAIN }}" != "" ]; then
+
+          BASE_HREF="/OmniFlutter-template/"
+              
+          # Check if this is a manual deployment to custom domain
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] && [[ "${{ github.event.inputs.deployment-target }}" == "custom-domain" ]]; then
             BASE_HREF="/"
-          else
-            BASE_HREF="/OmniFlutter-template/"
-          fi\
+          fi
+              
+          # Check if there's a custom domain secret set
+          if [[ "${{ secrets.CUSTOM_DOMAIN_DEPLOY }}" == "true" ]]; then
+            BASE_HREF="/"
+          fi
 
           flutter build web \
           --release \
           --no-source-maps \
           --base-href="/OmniFlutter-template/" \
           -O 4 \
-# wasm doesnt seem to work
-#          --wasm
+        # wasm doesnt seem to work
+        #          --wasm
 
         env:
           FLUTTER_ROOT: ${{ env.FLUTTER_ROOT }}
