@@ -139,7 +139,7 @@ jobs:
   build-web:
     name: Build Web Apps
     needs: [setup] # Removed analyze, security, test dependencies
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true))
     strategy:
       matrix:
         platform: [web]
@@ -200,7 +200,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build-web
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true))
     permissions:
       pages: write
       id-token: write
