@@ -22,7 +22,6 @@ abstract class TodoModule {
     );
   }
 
-  // Add this registration
   @lazySingleton
   TodoBloc todoBloc(TodoRepository repository) => TodoBloc(repository);
 }

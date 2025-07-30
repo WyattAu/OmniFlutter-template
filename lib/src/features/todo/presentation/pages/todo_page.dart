@@ -32,7 +32,6 @@ class TodoPage extends StatelessWidget {
   }
 }
 
-// Rest of TodoView remains the same...
 class TodoView extends StatelessWidget {
   const TodoView({super.key});
 
