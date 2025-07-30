@@ -167,6 +167,12 @@ jobs:
 
       - name: Build Application
         run: |
+          if [ "${{ secrets.CUSTOM_DOMAIN }}" != "" ]; then
+            BASE_HREF="/"
+          else
+            BASE_HREF="/OmniFlutter-template/"
+          fi\
+
           flutter build web \
           --release \
           --no-source-maps \
