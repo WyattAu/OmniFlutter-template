@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "alexisvt.flutter-snippets",
+        "dart-code.flutter",
+        "gmlewis-vscode.flutter-stylizer",
+        "gornivv.vscode-flutter-files",
+        "marcelovelasquez.flutter-tree",
+        "dart-code.dart-code",
+    ],
+    "unwantedRecommendations": []
+}
