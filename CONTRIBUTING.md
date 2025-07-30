@@ -4,6 +4,7 @@
 
 1. Fork this repo
 2. run `make setup`
+3. run `make help` for more commands
 
 ## Guidelines
 

@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'src/app.dart';
-import 'src/themes/theme_main.dart' as theme;
+import 'src/shared/providers/providers.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Configure dependencies
+  configureDependencies();
+
+  // Wait for all async dependencies to be ready
+  await getIt.allReady();
+
   runApp(const MyApp());
 }
 
@@ -11,12 +19,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Omni Todo',
-      theme: theme.AppTheme.lightTheme,
-      darkTheme: theme.AppTheme.darkTheme,
-      home: const TodoApp(),
-      debugShowCheckedModeBanner: false,
-    );
+    return const TodoApp();
   }
 }
