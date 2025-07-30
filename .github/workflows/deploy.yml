@@ -172,7 +172,8 @@ jobs:
           --no-source-maps \
           --base-href="/OmniFlutter-template/" \
           -O 4 \
-          --wasm
+# wasm doesnt seem to work
+#          --wasm
 
         env:
           FLUTTER_ROOT: ${{ env.FLUTTER_ROOT }}

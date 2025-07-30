@@ -5,6 +5,6 @@ import 'package:flutter/foundation.dart';
 final QueryExecutor executor = LazyDatabase(() async {
   debugPrint('Unsupported platform - throwing error');
   throw UnsupportedError(
-    'Platform not supported. Please use database_impl_io.dart or database_impl_web.dart',
+    'Platform not supported. Please use database_impl_io.dart or database_impl_wasm.dart',
   );
 });
