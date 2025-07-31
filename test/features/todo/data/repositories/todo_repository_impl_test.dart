@@ -65,7 +65,7 @@ void main() {
         when(() => mockDao.getAllTodos()).thenAnswer((_) async => testTodos);
         when(
           () => mockSupabase.getAllTodos(testUserId),
-        ).thenAnswer((_) async => Left(ServerFailure('Network error')));
+        ).thenAnswer((_) async => const Left(ServerFailure('Network error')));
 
         // Act
         final result = await repository.getAllTodos();
@@ -83,7 +83,7 @@ void main() {
         ).thenAnswer((_) async => throw Exception('Database error'));
         when(
           () => mockSupabase.getAllTodos(testUserId),
-        ).thenAnswer((_) async => Left(ServerFailure('Network error')));
+        ).thenAnswer((_) async => const Left(ServerFailure('Network error')));
 
         // Act
         final result = await repository.getAllTodos();
@@ -120,7 +120,7 @@ void main() {
         when(() => mockDao.insertTodo(testTodo)).thenAnswer((_) async => 1);
         when(
           () => mockSupabase.createTodo(testTodo),
-        ).thenAnswer((_) async => Left(ServerFailure('Server error')));
+        ).thenAnswer((_) async => const Left(ServerFailure('Server error')));
 
         // Act
         final result = await repository.addTodo(testTodo);
@@ -176,7 +176,7 @@ void main() {
         when(() => mockDao.updateTodo(updatedTodo)).thenAnswer((_) async => 1);
         when(
           () => mockSupabase.updateTodo(updatedTodo),
-        ).thenAnswer((_) async => Left(ServerFailure('Server error')));
+        ).thenAnswer((_) async => const Left(ServerFailure('Server error')));
 
         // Act
         final result = await repository.updateTodo(updatedTodo);
@@ -215,7 +215,7 @@ void main() {
         when(() => mockDao.deleteTodo(todoId)).thenAnswer((_) async => 1);
         when(
           () => mockSupabase.deleteTodo(todoId),
-        ).thenAnswer((_) async => Left(ServerFailure('Server error')));
+        ).thenAnswer((_) async => const Left(ServerFailure('Server error')));
 
         // Act
         final result = await repository.deleteTodo(todoId);

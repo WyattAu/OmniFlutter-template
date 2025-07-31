@@ -64,7 +64,7 @@ void main() {
 
       test('should emit [loading, error] when data loading fails', () async {
         // Arrange
-        final failure = ServerFailure('Server error');
+        const failure = ServerFailure('Server error');
         when(
           () => mockRepository.getAllTodos(),
         ).thenAnswer((_) async => Left(failure));
@@ -90,7 +90,7 @@ void main() {
           ).thenAnswer((_) async => const Right(testTodo));
 
           // First load todos
-          bloc.emit(TodoState.loaded(todos: []));
+          bloc.emit(const TodoState.loaded(todos: []));
 
           // Act
           bloc.add(TodoEvent.addTodo(testTodo));
@@ -112,12 +112,12 @@ void main() {
 
       test('should emit [error] when add fails', () async {
         // Arrange
-        final failure = ServerFailure('Add failed');
+        const failure = ServerFailure('Add failed');
         when(
           () => mockRepository.addTodo(testTodo),
         ).thenAnswer((_) async => Left(failure));
 
-        bloc.emit(TodoState.loaded(todos: []));
+        bloc.emit(const TodoState.loaded(todos: []));
 
         // Act
         bloc.add(TodoEvent.addTodo(testTodo));
